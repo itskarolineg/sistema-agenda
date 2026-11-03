@@ -1,7 +1,9 @@
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agenda</title>
   <style>
     :root {
       --red: #e60014;
@@ -18,15 +20,19 @@
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: var(--canvas); }
     button, input, select, textarea { font: inherit; }
-    .app { min-height: 100vh; display: grid; grid-template-columns: 232px 1fr; }
-    .sidebar { background: #1f242b; color: white; padding: 24px 16px; position: sticky; top: 0; height: 100vh; }
+    .app { width: 100%; min-height: 100vh; display: grid; grid-template-columns: 210px minmax(0, 1fr); }
+    .sidebar { background: #1f242b; color: white; padding: 24px 12px; position: sticky; top: 0; height: 100vh; }
     .brand { display: flex; align-items: center; gap: 10px; font-size: 21px; font-weight: 700; margin-bottom: 28px; }
-    .brand-mark { color: var(--red); font-size: 30px; line-height: 1; }
+    .brand-mark { color: var(--red); font-size: 30px; font-weight: 800; line-height: 1; }
     .nav { display: grid; gap: 6px; }
     .nav button { border: 0; border-radius: 6px; color: #d9dee7; background: transparent; padding: 12px 14px; text-align: left; cursor: pointer; }
     .nav button.active, .nav button:hover { color: white; background: var(--red); }
-    main { min-width: 0; padding: 28px 32px 50px; }
-    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+    main { min-width: 0; width: 100%; padding: 20px 24px 50px; overflow: hidden; }
+    .topbar { min-height: 58px; display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin-bottom: 12px; }
+    .header-menu { border: 0; color: #7b8493; background: transparent; border-radius: 5px; padding: 7px 9px; cursor: pointer; font-size: 18px; line-height: 1; }
+    .header-menu:hover { color: var(--red); background: #edf0f4; }
+    .app.menu-collapsed { grid-template-columns: 0 minmax(0, 1fr); }
+    .app.menu-collapsed .sidebar { padding-left: 0; padding-right: 0; overflow: hidden; }
     h1 { margin: 0 0 4px; font-size: 28px; }
     .subtitle { color: var(--muted); margin: 0; }
     .user { display: flex; align-items: center; gap: 10px; }
@@ -37,8 +43,8 @@
     .tab { border: 0; border-bottom: 3px solid transparent; background: transparent; padding: 12px 16px 10px; cursor: pointer; font-weight: 700; white-space: nowrap; }
     .tab.active { border-bottom-color: var(--red); color: var(--red-dark); }
     .tab small { margin-left: 6px; border-radius: 20px; padding: 2px 7px; background: #edf0f4; color: var(--muted); }
-    .filters { display: flex; gap: 12px; align-items: end; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; }
-    .field { display: grid; gap: 6px; min-width: 170px; }
+    .filters { display: grid; grid-template-columns: minmax(220px, 1fr) 90px minmax(150px, 180px) minmax(155px, 180px) auto auto; gap: 12px; align-items: end; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; }
+    .field { display: grid; gap: 6px; min-width: 0; }
     .field.grow { flex: 1; }
     label { font-size: 13px; font-weight: 700; }
     input, select { height: 38px; border: 1px solid #ccd2dc; border-radius: 5px; padding: 0 10px; background: white; }
@@ -53,8 +59,17 @@
     .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
     .panel-head { min-height: 58px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--border); }
     .panel-head h2 { font-size: 17px; margin: 0; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 13px 14px; border-bottom: 1px solid var(--border); text-align: left; font-size: 14px; }
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { padding: 11px 8px; border-bottom: 1px solid var(--border); text-align: left; font-size: 13px; overflow-wrap: anywhere; }
+    th:nth-child(1), td:nth-child(1) { width: 11%; }
+    th:nth-child(2), td:nth-child(2) { width: 18%; }
+    th:nth-child(3), td:nth-child(3) { width: 7%; }
+    th:nth-child(4), td:nth-child(4) { width: 13%; }
+    th:nth-child(5), td:nth-child(5) { width: 12%; }
+    th:nth-child(6), td:nth-child(6) { width: 13%; }
+    th:nth-child(7), td:nth-child(7) { width: 13%; }
+    th:nth-child(8), td:nth-child(8) { width: 13%; }
     th { color: #596173; background: #f8f9fb; font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
     tbody tr:hover { background: #fafbfc; }
     .status { border-radius: 20px; padding: 5px 9px; font-size: 12px; font-weight: 700; white-space: nowrap; }
@@ -83,7 +98,6 @@
     .log-list { border-top: 1px solid var(--border); padding-top: 12px; max-height: 220px; overflow: auto; }
     .log-item { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
     @media (max-width: 700px) { .modal-body { grid-template-columns: 1fr; } }
-    .mobile-menu { display: none; }
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { height: auto; position: static; padding: 14px; }
@@ -91,7 +105,8 @@
       .nav { display: none; grid-template-columns: repeat(4, 1fr); margin-top: 14px; }
       .nav.open { display: grid; }
       .nav button { text-align: center; }
-      .mobile-menu { display: block; margin-left: auto; color: white; background: transparent; border: 1px solid #69717d; border-radius: 5px; padding: 8px 12px; }
+      .app.menu-collapsed { grid-template-columns: 1fr; }
+      .app.menu-collapsed .sidebar { padding: 14px; }
       main { padding: 20px 16px; }
       .topbar { align-items: flex-start; }
       .filters { flex-wrap: wrap; }
@@ -100,12 +115,12 @@
       .table-wrap { overflow-x: auto; }
       table { min-width: 850px; }
     }
+    @media (max-width: 1250px) { .filters { grid-template-columns: repeat(2, minmax(180px, 1fr)); } }
   </style>
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
-      <div class="brand"><button class="mobile-menu" type="button" onclick="toggleMenu()">Menu</button><span class="brand-mark">Claro—</span></div>
       <nav class="nav" id="nav">
         <button class="active" data-view="agenda">Agenda</button>
         <button data-view="importar">Importar arquivo</button>
@@ -116,8 +131,8 @@
     </aside>
     <main>
       <header class="topbar">
-        <div><h1>Sistema de Agenda</h1><p class="subtitle" id="pageSubtitle">Gestão centralizada das tratativas</p></div>
-        <div class="user"><div><strong>Operações</strong><br><span class="helper">Equipe de atendimento</span></div><div class="avatar">OP</div></div>
+        <div class="brand-mark" aria-label="Claro">Claro</div>
+        <button class="header-menu" type="button" onclick="toggleMenu()" aria-label="Abrir ou fechar menu" title="Menu">☰</button>
       </header>
 
       <section id="agenda" class="view active">
@@ -261,7 +276,13 @@
       if (id === 'relatorio') renderRelatorio();
       if (id === 'configuracoes') carregarConfiguracoes();
     }
-    function toggleMenu() { document.getElementById('nav').classList.toggle('open'); }
+    function toggleMenu() {
+      if (window.matchMedia('(max-width: 900px)').matches) {
+        document.getElementById('nav').classList.toggle('open');
+      } else {
+        document.querySelector('.app').classList.toggle('menu-collapsed');
+      }
+    }
     function limparFiltros() {
       document.getElementById('busca').value = '';
       document.getElementById('uf').value = '';
